@@ -31,9 +31,9 @@ def loss_coteaching(y_1, y_2, t, forget_rate, ind, noise_or_not):
     num_remember = int(remember_rate * len(loss_1_sorted))
 
     pure_ratio_1 = np.sum(
-        noise_or_not[ind[ind_1_sorted[:num_remember]]])/float(num_remember)
+        noise_or_not[ind[ind_1_sorted[:num_remember]]].cpu())/float(num_remember)
     pure_ratio_2 = np.sum(
-        noise_or_not[ind[ind_2_sorted[:num_remember]]])/float(num_remember)
+        noise_or_not[ind[ind_2_sorted[:num_remember]]].cpu())/float(num_remember)
 
     ind_1_update = ind_1_sorted[:num_remember]
     ind_2_update = ind_2_sorted[:num_remember]
