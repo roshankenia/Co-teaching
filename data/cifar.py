@@ -8,9 +8,19 @@ if sys.version_info[0] == 2:
     import cPickle as pickle
 else:
     import pickle
-
+import torch
 import torch.utils.data as data
 from .utils import download_url, check_integrity, noisify
+
+# ensure we are running on the correct gpu
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"  # (xxxx is your specific GPU ID)
+if not torch.cuda.is_available() or torch.cuda.device_count() != 1:
+    print('exiting')
+    sys.exit()
+else:
+    print('GPU is being properly used')
+
 
 class CIFAR10(data.Dataset):
     """`CIFAR10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ Dataset.
@@ -53,9 +63,9 @@ class CIFAR10(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.train = train  # training set or test set
-        self.dataset='cifar10'
-        self.noise_type=noise_type
-        self.nb_classes=10
+        self.dataset = 'cifar10'
+        self.noise_type = noise_type
+        self.nb_classes = 10
 
         if download:
             self.download()
@@ -85,15 +95,20 @@ class CIFAR10(data.Dataset):
 
             self.train_data = np.concatenate(self.train_data)
             self.train_data = self.train_data.reshape((50000, 3, 32, 32))
-            self.train_data = self.train_data.transpose((0, 2, 3, 1))  # convert to HWC
-            #if noise_type is not None:
-            if noise_type !='clean':
+            self.train_data = self.train_data.transpose(
+                (0, 2, 3, 1))  # convert to HWC
+            # if noise_type is not None:
+            if noise_type != 'clean':
                 # noisify train data
-                self.train_labels=np.asarray([[self.train_labels[i]] for i in range(len(self.train_labels))])
-                self.train_noisy_labels, self.actual_noise_rate = noisify(dataset=self.dataset, train_labels=self.train_labels, noise_type=noise_type, noise_rate=noise_rate, random_state=random_state, nb_classes=self.nb_classes)
-                self.train_noisy_labels=[i[0] for i in self.train_noisy_labels]
-                _train_labels=[i[0] for i in self.train_labels]
-                self.noise_or_not = np.transpose(self.train_noisy_labels)==np.transpose(_train_labels)
+                self.train_labels = np.asarray(
+                    [[self.train_labels[i]] for i in range(len(self.train_labels))])
+                self.train_noisy_labels, self.actual_noise_rate = noisify(
+                    dataset=self.dataset, train_labels=self.train_labels, noise_type=noise_type, noise_rate=noise_rate, random_state=random_state, nb_classes=self.nb_classes)
+                self.train_noisy_labels = [i[0]
+                                           for i in self.train_noisy_labels]
+                _train_labels = [i[0] for i in self.train_labels]
+                self.noise_or_not = np.transpose(
+                    self.train_noisy_labels) == np.transpose(_train_labels)
         else:
             f = self.test_list[0][0]
             file = os.path.join(self.root, self.base_folder, f)
@@ -109,7 +124,8 @@ class CIFAR10(data.Dataset):
                 self.test_labels = entry['fine_labels']
             fo.close()
             self.test_data = self.test_data.reshape((10000, 3, 32, 32))
-            self.test_data = self.test_data.transpose((0, 2, 3, 1))  # convert to HWC
+            self.test_data = self.test_data.transpose(
+                (0, 2, 3, 1))  # convert to HWC
 
     def __getitem__(self, index):
         """
@@ -120,7 +136,7 @@ class CIFAR10(data.Dataset):
             tuple: (image, target) where target is index of the target class.
         """
         if self.train:
-            if self.noise_type !='clean':
+            if self.noise_type != 'clean':
                 img, target = self.train_data[index], self.train_noisy_labels[index]
             else:
                 img, target = self.train_data[index], self.train_labels[index]
@@ -179,10 +195,13 @@ class CIFAR10(data.Dataset):
         fmt_str += '    Split: {}\n'.format(tmp)
         fmt_str += '    Root Location: {}\n'.format(self.root)
         tmp = '    Transforms (if any): '
-        fmt_str += '{0}{1}\n'.format(tmp, self.transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
+        fmt_str += '{0}{1}\n'.format(
+            tmp, self.transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
         tmp = '    Target Transforms (if any): '
-        fmt_str += '{0}{1}'.format(tmp, self.target_transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
+        fmt_str += '{0}{1}'.format(
+            tmp, self.target_transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
         return fmt_str
+
 
 class CIFAR100(data.Dataset):
     """`CIFAR100 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ Dataset.
@@ -212,7 +231,6 @@ class CIFAR100(data.Dataset):
     test_list = [
         ['test', 'f0ef6b0ae62326f3e7ffdfab6717acfc'],
     ]
- 
 
     def __init__(self, root, train=True,
                  transform=None, target_transform=None,
@@ -222,9 +240,9 @@ class CIFAR100(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.train = train  # training set or test set
-        self.dataset='cifar100'
-        self.noise_type=noise_type
-        self.nb_classes=100
+        self.dataset = 'cifar100'
+        self.noise_type = noise_type
+        self.nb_classes = 100
 
         if download:
             self.download()
@@ -254,14 +272,19 @@ class CIFAR100(data.Dataset):
 
             self.train_data = np.concatenate(self.train_data)
             self.train_data = self.train_data.reshape((50000, 3, 32, 32))
-            self.train_data = self.train_data.transpose((0, 2, 3, 1))  # convert to HWC
+            self.train_data = self.train_data.transpose(
+                (0, 2, 3, 1))  # convert to HWC
             if noise_type is not None:
                 # noisify train data
-                self.train_labels=np.asarray([[self.train_labels[i]] for i in range(len(self.train_labels))])
-                self.train_noisy_labels, self.actual_noise_rate = noisify(dataset=self.dataset, train_labels=self.train_labels, noise_type=noise_type, noise_rate=noise_rate, random_state=random_state, nb_classes=self.nb_classes)
-                self.train_noisy_labels=[i[0] for i in self.train_noisy_labels]
-                _train_labels=[i[0] for i in self.train_labels]
-                self.noise_or_not = np.transpose(self.train_noisy_labels)==np.transpose(_train_labels)
+                self.train_labels = np.asarray(
+                    [[self.train_labels[i]] for i in range(len(self.train_labels))])
+                self.train_noisy_labels, self.actual_noise_rate = noisify(
+                    dataset=self.dataset, train_labels=self.train_labels, noise_type=noise_type, noise_rate=noise_rate, random_state=random_state, nb_classes=self.nb_classes)
+                self.train_noisy_labels = [i[0]
+                                           for i in self.train_noisy_labels]
+                _train_labels = [i[0] for i in self.train_labels]
+                self.noise_or_not = np.transpose(
+                    self.train_noisy_labels) == np.transpose(_train_labels)
         else:
             f = self.test_list[0][0]
             file = os.path.join(self.root, self.base_folder, f)
@@ -277,7 +300,8 @@ class CIFAR100(data.Dataset):
                 self.test_labels = entry['fine_labels']
             fo.close()
             self.test_data = self.test_data.reshape((10000, 3, 32, 32))
-            self.test_data = self.test_data.transpose((0, 2, 3, 1))  # convert to HWC
+            self.test_data = self.test_data.transpose(
+                (0, 2, 3, 1))  # convert to HWC
 
     def __getitem__(self, index):
         """
@@ -347,11 +371,9 @@ class CIFAR100(data.Dataset):
         fmt_str += '    Split: {}\n'.format(tmp)
         fmt_str += '    Root Location: {}\n'.format(self.root)
         tmp = '    Transforms (if any): '
-        fmt_str += '{0}{1}\n'.format(tmp, self.transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
+        fmt_str += '{0}{1}\n'.format(
+            tmp, self.transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
         tmp = '    Target Transforms (if any): '
-        fmt_str += '{0}{1}'.format(tmp, self.target_transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
+        fmt_str += '{0}{1}'.format(
+            tmp, self.target_transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
         return fmt_str
-
-
-
-

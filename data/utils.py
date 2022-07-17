@@ -5,6 +5,18 @@ import hashlib
 import errno
 import numpy as np
 from numpy.testing import assert_array_almost_equal
+import torch
+import sys
+
+# ensure we are running on the correct gpu
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"  # (xxxx is your specific GPU ID)
+if not torch.cuda.is_available() or torch.cuda.device_count() != 1:
+    print('exiting')
+    sys.exit()
+else:
+    print('GPU is being properly used')
+
 
 def check_integrity(fpath, md5):
     if not os.path.isfile(fpath):
@@ -84,7 +96,8 @@ def list_files(root, suffix, prefix=False):
     root = os.path.expanduser(root)
     files = list(
         filter(
-            lambda p: os.path.isfile(os.path.join(root, p)) and p.endswith(suffix),
+            lambda p: os.path.isfile(os.path.join(
+                root, p)) and p.endswith(suffix),
             os.listdir(root)
         )
     )
@@ -95,6 +108,8 @@ def list_files(root, suffix, prefix=False):
     return files
 
 # basic function
+
+
 def multiclass_noisify(y, P, random_state=0):
     """ Flip classes according to transition probability matrix T.
     It expects a number between 0 and the number of classes - 1.
@@ -146,6 +161,7 @@ def noisify_pairflip(y_train, noise, random_state=None, nb_classes=10):
 
     return y_train, actual_noise
 
+
 def noisify_multiclass_symmetric(y_train, noise, random_state=None, nb_classes=10):
     """mistakes:
         flip in the symmetric way
@@ -171,9 +187,12 @@ def noisify_multiclass_symmetric(y_train, noise, random_state=None, nb_classes=1
 
     return y_train, actual_noise
 
+
 def noisify(dataset='mnist', nb_classes=10, train_labels=None, noise_type=None, noise_rate=0, random_state=0):
     if noise_type == 'pairflip':
-        train_noisy_labels, actual_noise_rate = noisify_pairflip(train_labels, noise_rate, random_state=0, nb_classes=nb_classes)
+        train_noisy_labels, actual_noise_rate = noisify_pairflip(
+            train_labels, noise_rate, random_state=0, nb_classes=nb_classes)
     if noise_type == 'symmetric':
-        train_noisy_labels, actual_noise_rate = noisify_multiclass_symmetric(train_labels, noise_rate, random_state=0, nb_classes=nb_classes)
+        train_noisy_labels, actual_noise_rate = noisify_multiclass_symmetric(
+            train_labels, noise_rate, random_state=0, nb_classes=nb_classes)
     return train_noisy_labels, actual_noise_rate
