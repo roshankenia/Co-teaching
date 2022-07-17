@@ -191,7 +191,7 @@ def accuracy(logit, target, topk=(1,)):
 
 
 def train(train_loader, epoch, model1, optimizer1, model2, optimizer2):
-    print 'Training %s...' % model_str
+    print('Training %s...' % model_str)
     pure_ratio_list = []
     pure_ratio_1_list = []
     pure_ratio_2_list = []
@@ -242,7 +242,7 @@ def train(train_loader, epoch, model1, optimizer1, model2, optimizer2):
 
 
 def evaluate(test_loader, model1, model2):
-    print 'Evaluating %s...' % model_str
+    print('Evaluating %s...' % model_str)
     model1.eval()    # Change model to 'eval' mode.
     correct1 = 0
     total1 = 0
@@ -272,7 +272,7 @@ def evaluate(test_loader, model1, model2):
 
 def main():
     # Data Loader (Input Pipeline)
-    print 'loading dataset...'
+    print('loading dataset...')
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                batch_size=batch_size,
                                                num_workers=args.num_workers,
@@ -285,15 +285,15 @@ def main():
                                               drop_last=True,
                                               shuffle=False)
     # Define models
-    print 'building model...'
+    print('building model...')
     cnn1 = CNN(input_channel=input_channel, n_outputs=num_classes)
     cnn1.cuda()
-    print cnn1.parameters
+    print(cnn1.parameters)
     optimizer1 = torch.optim.Adam(cnn1.parameters(), lr=learning_rate)
 
     cnn2 = CNN(input_channel=input_channel, n_outputs=num_classes)
     cnn2.cuda()
-    print cnn2.parameters
+    print(cnn2.parameters)
     optimizer2 = torch.optim.Adam(cnn2.parameters(), lr=learning_rate)
 
     mean_pure_ratio1 = 0
