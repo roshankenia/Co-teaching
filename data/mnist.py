@@ -115,7 +115,7 @@ class MNIST(data.Dataset):
     def _check_exists(self):
         return os.path.exists(os.path.join(self.root, self.processed_folder, self.training_file)) and \
             os.path.exists(os.path.join(self.root, self.processed_folder, self.test_file))
-
+#hi
     def download(self):
         """Download the MNIST data if it doesn't exist in processed_folder already."""
         from six.moves import urllib

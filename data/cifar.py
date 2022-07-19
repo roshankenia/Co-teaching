@@ -202,7 +202,7 @@ class CIFAR10(data.Dataset):
             tmp, self.target_transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
         return fmt_str
 
-
+#hi
 class CIFAR100(data.Dataset):
     """`CIFAR100 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ Dataset.
 
