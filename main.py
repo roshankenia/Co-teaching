@@ -224,6 +224,11 @@ def train(train_loader, epoch, model1, optimizer1, model2, optimizer2):
         pure_ratio_1_list.append(100*pure_ratio_1)
         pure_ratio_2_list.append(100*pure_ratio_2)
 
+        if i == 0:
+            print(logits1, '\n')
+            print(labels, '\n')
+            print(loss_1, '\n')
+
         optimizer1.zero_grad()
         loss_1.backward()
         optimizer1.step()
