@@ -13,6 +13,8 @@ import sys
 import numpy as np
 import datetime
 import shutil
+import torchvision
+
 
 from loss import loss_coteaching
 
@@ -291,12 +293,14 @@ def main():
                                               shuffle=False)
     # Define models
     print('building model...')
-    cnn1 = CNN(input_channel=input_channel, n_outputs=num_classes)
+    # cnn1 = CNN(input_channel=input_channel, n_outputs=num_classes)
+    cnn1 = torchvision.models.resnet34(pretrained=False, num_classes=10)
     cnn1.cuda()
     print(cnn1.parameters)
     optimizer1 = torch.optim.Adam(cnn1.parameters(), lr=learning_rate)
 
-    cnn2 = CNN(input_channel=input_channel, n_outputs=num_classes)
+    # cnn2 = CNN(input_channel=input_channel, n_outputs=num_classes)
+    cnn2 = torchvision.models.resnet34(pretrained=False, num_classes=10)
     cnn2.cuda()
     print(cnn2.parameters)
     optimizer2 = torch.optim.Adam(cnn2.parameters(), lr=learning_rate)
