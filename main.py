@@ -338,8 +338,8 @@ def main():
         # save results
         mean_pure_ratio1 = sum(pure_ratio_1_list)/len(pure_ratio_1_list)
         mean_pure_ratio2 = sum(pure_ratio_2_list)/len(pure_ratio_2_list)
-        print('Epoch [%d/%d] Test Accuracy on the %s test images: Model1 %.4f %% Model2 %.4f %%, Pure Ratio 1 %.4f %%, Pure Ratio 2 %.4f %%' %
-              (epoch+1, args.n_epoch, len(test_dataset), test_acc1, test_acc2, mean_pure_ratio1, mean_pure_ratio2))
+        print('Epoch [%d/%d] Test Accuracy on the %s test images: Model1 %.4f %% Model2 %.4f %%' %
+              (epoch+1, args.n_epoch, len(test_dataset), test_acc1, test_acc2))
         with open(txtfile, "a") as myfile:
             myfile.write(str(int(epoch)) + ': ' + str(train_acc1) + ' ' + str(train_acc2) + ' ' + str(
                 test_acc1) + " " + str(test_acc2) + ' ' + str(mean_pure_ratio1) + ' ' + str(mean_pure_ratio2) + "\n")
