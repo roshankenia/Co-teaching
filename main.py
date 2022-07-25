@@ -15,9 +15,7 @@ import datetime
 import shutil
 import torchvision
 
-
 from loss import loss_coteaching
-
 
 # ensure we are running on the correct gpu
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -226,11 +224,6 @@ def train(train_loader, epoch, model1, optimizer1, model2, optimizer2):
         pure_ratio_1_list.append(100*pure_ratio_1)
         pure_ratio_2_list.append(100*pure_ratio_2)
 
-        # if i == 0:
-        #     print(logits1, '\n')
-        #     print(labels, '\n')
-        #     print(loss_1, '\n')
-
         optimizer1.zero_grad()
         loss_1.backward()
         optimizer1.step()
@@ -293,13 +286,11 @@ def main():
                                               shuffle=False)
     # Define models
     print('building model...')
-    # cnn1 = CNN(input_channel=input_channel, n_outputs=num_classes)
     cnn1 = torchvision.models.resnet34(pretrained=False, num_classes=10)
     cnn1.cuda()
     print(cnn1.parameters)
     optimizer1 = torch.optim.Adam(cnn1.parameters(), lr=learning_rate)
 
-    # cnn2 = CNN(input_channel=input_channel, n_outputs=num_classes)
     cnn2 = torchvision.models.resnet34(pretrained=False, num_classes=10)
     cnn2.cuda()
     print(cnn2.parameters)
@@ -317,8 +308,8 @@ def main():
     train_acc2 = 0
     # evaluate models with random weights
     test_acc1, test_acc2 = evaluate(test_loader, cnn1, cnn2)
-    print('Epoch [%d/%d] Test Accuracy on the %s test images: Model1 %.4f %% Model2 %.4f %%' %
-          (epoch+1, args.n_epoch, len(test_dataset), test_acc1, test_acc2))
+    print('Epoch [%d/%d] Test Accuracy on the %s test images: Model1 %.4f %% Model2 %.4f %% Pure Ratio1 %.4f %% Pure Ratio2 %.4f %%' %
+          (epoch+1, args.n_epoch, len(test_dataset), test_acc1, test_acc2, mean_pure_ratio1, mean_pure_ratio2))
     # save results
     with open(txtfile, "a") as myfile:
         myfile.write(str(int(epoch)) + ': ' + str(train_acc1) + ' ' + str(train_acc2) + ' ' + str(test_acc1) +
@@ -338,8 +329,8 @@ def main():
         # save results
         mean_pure_ratio1 = sum(pure_ratio_1_list)/len(pure_ratio_1_list)
         mean_pure_ratio2 = sum(pure_ratio_2_list)/len(pure_ratio_2_list)
-        print('Epoch [%d/%d] Test Accuracy on the %s test images: Model1 %.4f %% Model2 %.4f %%' %
-              (epoch+1, args.n_epoch, len(test_dataset), test_acc1, test_acc2))
+        print('Epoch [%d/%d] Test Accuracy on the %s test images: Model1 %.4f %% Model2 %.4f %%, Pure Ratio 1 %.4f %%, Pure Ratio 2 %.4f %%' %
+              (epoch+1, args.n_epoch, len(test_dataset), test_acc1, test_acc2, mean_pure_ratio1, mean_pure_ratio2))
         with open(txtfile, "a") as myfile:
             myfile.write(str(int(epoch)) + ': ' + str(train_acc1) + ' ' + str(train_acc2) + ' ' + str(
                 test_acc1) + " " + str(test_acc2) + ' ' + str(mean_pure_ratio1) + ' ' + str(mean_pure_ratio2) + "\n")
